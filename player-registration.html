@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player Registration — Hapugastalawa Premier League</title>
+<link rel="icon" href="images/logo.jpeg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="index.html" class="brand">
+      <img src="images/logo.jpeg" alt="HPL Logo">
+      <div class="brand-text"><strong>Hapugastalawa</strong><span>Premier League</span></div>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="teams.html">Teams</a>
+      <a href="history.html">History</a>
+      <a href="upcoming-events.html">Fixtures</a>
+      <a href="player-registration.html" class="active">Register</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="nav-toggle"><span></span><span></span><span></span></div>
+  </div>
+</header>
+
+<section class="hero" style="padding:90px 0 30px;">
+  <div class="container">
+    <span class="eyebrow">Season 2026/27 &middot; Open</span>
+    <h1 style="font-size:clamp(2rem,5vw,3.4rem);">Player <span class="gold-text">Registration</span></h1>
+    <p class="lede">Fill in your details below to register for the next Hapugastalawa Premier League season. Squad lists lock two weeks before kickoff.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:10px;">
+  <div class="container" style="max-width:760px;">
+    <form class="glass form-panel reveal" id="regForm">
+
+      <div class="field-row">
+        <div class="field">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" placeholder="e.g. Kasun Perera" required>
+        </div>
+        <div class="field">
+          <label for="dob">Date of Birth</label>
+          <input type="date" id="dob" required>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="phone">Contact Number</label>
+          <input type="tel" id="phone" placeholder="07X XXX XXXX" required>
+        </div>
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="position">Playing Position</label>
+        <select id="position" required>
+          <option value="">Select position</option>
+          <option>Goalkeeper</option>
+          <option>Defender</option>
+          <option>Midfielder</option>
+          <option>Forward</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="photo">Passport Size Photo</label>
+        <div class="photo-upload">
+          <div class="photo-preview" id="photoPreview">
+            <span id="photoPreviewIcon">&#128247;</span>
+            <img id="photoPreviewImg" alt="Passport photo preview" style="display:none;">
+          </div>
+          <div class="photo-upload-info">
+            <input type="file" id="photo" accept="image/*" required>
+            <p>Upload a clear, recent passport-size photo (JPG or PNG, face clearly visible).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="notes">Additional Notes</label>
+        <textarea id="notes" placeholder="Medical conditions, previous clubs, or anything else the committee should know..."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-gold btn-block">Submit Registration</button>
+    </form>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <a href="index.html" class="footer-brand">
+        <img src="images/logo.jpeg" alt="HPL">
+        <strong>Hapugastalawa Premier League</strong>
+      </a>
+      <nav class="footer-links">
+        <a href="teams.html">Teams</a>
+        <a href="history.html">History</a>
+        <a href="upcoming-events.html">Fixtures</a>
+        <a href="player-registration.html">Register</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">&copy; 2026 Hapugastalawa Premier League. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  const photoInput = document.getElementById('photo');
+  const photoPreviewImg = document.getElementById('photoPreviewImg');
+  const photoPreviewIcon = document.getElementById('photoPreviewIcon');
+  let currentPhotoDataUrl = '';
+
+  photoInput.addEventListener('change', function(){
+    hplReadImageAsDataURL(photoInput, function(dataUrl){
+      if (dataUrl){
+        currentPhotoDataUrl = dataUrl;
+        photoPreviewImg.src = dataUrl;
+        photoPreviewImg.style.display = 'block';
+        photoPreviewIcon.style.display = 'none';
+      }
+    });
+  });
+
+  document.getElementById('regForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    HplPlayers.add({
+      name: document.getElementById('fullName').value,
+      dob: document.getElementById('dob').value,
+      phone: document.getElementById('phone').value,
+      email: document.getElementById('email').value,
+      position: document.getElementById('position').value,
+      team: 'Unassigned',
+      notes: document.getElementById('notes').value,
+      photo: currentPhotoDataUrl,
+      status: 'Pending'
+    });
+
+    showToast('Registration submitted — welcome to the league!');
+    this.reset();
+    photoPreviewImg.style.display = 'none';
+    photoPreviewImg.src = '';
+    photoPreviewIcon.style.display = 'block';
+    currentPhotoDataUrl = '';
+  });
+</script>
+
+</body>
+</html>

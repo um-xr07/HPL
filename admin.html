@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Hapugastalawa Premier League</title>
+<link rel="icon" href="images/logo.jpeg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="index.html" class="brand">
+      <img src="images/logo.jpeg" alt="HPL Logo">
+      <div class="brand-text"><strong>Hapugastalawa</strong><span>Premier League</span></div>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="teams.html">Teams</a>
+      <a href="history.html">History</a>
+      <a href="upcoming-events.html">Fixtures</a>
+      <a href="player-registration.html">Register</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="admin.html" class="active">Admin</a>
+    </nav>
+    <div class="nav-toggle"><span></span><span></span><span></span></div>
+  </div>
+</header>
+
+<section class="hero" style="padding:90px 0 30px;">
+  <div class="container">
+    <span class="eyebrow">Committee Only</span>
+    <h1 style="font-size:clamp(2rem,5vw,3.4rem);">Admin <span class="gold-text">Dashboard</span></h1>
+    <p class="lede">Manage teams, review registrations, and update standings for the Hapugastalawa Premier League.</p>
+  </div>
+</section>
+
+<!-- LOGIN GATE -->
+<section class="section" style="padding-top:10px;" id="loginSection">
+  <div class="container" style="max-width:440px;">
+    <div class="glass login-lock reveal">
+      <div class="lock-icon">&#128274;</div>
+      <h2 style="font-size:1.3rem; margin-bottom:8px;">Committee Login</h2>
+      <p style="color:var(--white-3); font-size:.88rem; margin-bottom:26px;">Enter your admin credentials to continue.</p>
+      <form id="loginForm" style="text-align:left;">
+        <div class="field">
+          <label for="adminUser">Username</label>
+          <input type="text" id="adminUser" placeholder="admin" required>
+        </div>
+        <div class="field">
+          <label for="adminPass">Password</label>
+          <input type="password" id="adminPass" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-gold btn-block">Sign In</button>
+      </form>
+      <p style="color:var(--white-3); font-size:.72rem; margin-top:18px;">Demo access — any credentials will unlock the dashboard.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD (hidden until login) -->
+<section class="section" style="padding-top:10px; display:none;" id="dashboardSection">
+  <div class="container">
+
+    <div class="glass stat-strip reveal" style="margin-bottom:36px;">
+      <div class="stat-item"><div class="num" id="statTeams">7</div><div class="lab">Active Teams</div></div>
+      <div class="stat-item"><div class="num" id="statPlayers">0</div><div class="lab">Registered Players</div></div>
+      <div class="stat-item"><div class="num" id="statPending">0</div><div class="lab">Pending Registrations</div></div>
+      <div class="stat-item"><div class="num" id="statFixtures">0</div><div class="lab">Upcoming Fixtures</div></div>
+    </div>
+
+    <!-- ===== PLAYER REGISTRATIONS ===== -->
+    <div class="section-head">
+      <div><span class="eyebrow">Manage</span><h2 style="font-size:1.6rem; margin-top:8px;">Player Registrations</h2></div>
+      <button class="btn btn-sm" onclick="showToast('Export started')">Export CSV</button>
+    </div>
+
+    <div class="glass table-card reveal" style="margin-bottom:44px;">
+      <div class="table-scroll">
+        <table class="standings">
+          <thead><tr><th>Photo</th><th>Name</th><th>Team</th><th>Position</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
+          <tbody id="playersTableBody">
+            <!-- rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== FIXTURES ===== -->
+    <div class="section-head">
+      <div><span class="eyebrow">Manage</span><h2 style="font-size:1.6rem; margin-top:8px;">Fixtures &amp; Events</h2></div>
+      <button class="btn btn-sm btn-gold" onclick="openFixtureModal()">+ Add Fixture</button>
+    </div>
+
+    <div class="glass table-card reveal" style="margin-bottom:44px;">
+      <div class="table-scroll">
+        <table class="standings">
+          <thead><tr><th>Date</th><th>Title</th><th>Details</th><th>Tag</th><th style="text-align:right;">Actions</th></tr></thead>
+          <tbody id="fixturesTableBody">
+            <!-- rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== STANDINGS ===== -->
+    <div class="section-head">
+      <div><span class="eyebrow">Manage</span><h2 style="font-size:1.6rem; margin-top:8px;">Points Tables &amp; Standings</h2></div>
+      <button class="btn btn-sm btn-gold" onclick="openSeasonModal()">+ New Season Table</button>
+    </div>
+
+    <div class="glass table-card reveal" style="margin-bottom:24px; padding:22px 26px;">
+      <div class="field-row" style="margin-bottom:0; align-items:end;">
+        <div class="field" style="margin-bottom:0;">
+          <label for="standingsSeasonSelect">Season</label>
+          <select id="standingsSeasonSelect" onchange="onStandingsSeasonChange()"></select>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn btn-sm" onclick="openSeasonModal(true)">Edit Season Info</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick="deleteSeason()">Delete Season</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div></div>
+      <button class="btn btn-sm btn-gold" onclick="openRowModal()">+ Add Team Row</button>
+    </div>
+
+    <div class="glass table-card reveal" style="margin-bottom:44px;">
+      <div class="table-scroll">
+        <table class="standings">
+          <thead><tr><th>Pos</th><th>Team</th><th>MP</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th><th>Zone</th><th style="text-align:right;">Actions</th></tr></thead>
+          <tbody id="standingsTableBody">
+            <!-- rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== SEASON ADD/EDIT MODAL ===== -->
+<div class="modal-overlay" id="seasonModal">
+  <div class="glass modal-box">
+    <div class="modal-close" onclick="closeModal('seasonModal')">&times;</div>
+    <h2 style="font-size:1.2rem; margin-bottom:20px;" id="seasonModalTitle">New Season Table</h2>
+    <form id="seasonForm">
+      <input type="hidden" id="seasonId">
+      <div class="field">
+        <label for="seasonLabel">Season Label</label>
+        <input type="text" id="seasonLabel" placeholder="e.g. 2026/27 or 2023" required>
+      </div>
+      <div class="field">
+        <label for="seasonStatusText">Table Status Text</label>
+        <input type="text" id="seasonStatusText" placeholder="e.g. In Progress, Final, Live" required>
+      </div>
+      <div class="field">
+        <label for="seasonOrder">Display Order (higher = more recent, shown first)</label>
+        <input type="number" id="seasonOrder" placeholder="e.g. 4">
+      </div>
+      <div class="field">
+        <label for="seasonShowGfGa">Table Columns</label>
+        <select id="seasonShowGfGa">
+          <option value="no">Simple (GP, W, D, L, GD, Pts)</option>
+          <option value="yes">Detailed (MP, W, D, L, GF, GA, GD, Pts)</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-gold btn-block">Save Season</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== ROW ADD/EDIT MODAL ===== -->
+<div class="modal-overlay" id="rowModal">
+  <div class="glass modal-box">
+    <div class="modal-close" onclick="closeModal('rowModal')">&times;</div>
+    <h2 style="font-size:1.2rem; margin-bottom:20px;" id="rowModalTitle">Add Team Row</h2>
+    <form id="rowForm">
+      <input type="hidden" id="rowId">
+      <div class="field-row">
+        <div class="field">
+          <label for="rowPos">Position</label>
+          <input type="number" id="rowPos" min="1" required>
+        </div>
+        <div class="field">
+          <label for="rowTeam">Team</label>
+          <select id="rowTeam" required></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rowPlayed">Played</label>
+          <input type="number" id="rowPlayed" min="0" value="0" required>
+        </div>
+        <div class="field">
+          <label for="rowZone">Zone</label>
+          <select id="rowZone">
+            <option value="dot-q">Qualification (green)</option>
+            <option value="dot-r">Relegation (red)</option>
+            <option value="dot-n">Neutral (grey)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rowW">Wins</label>
+          <input type="number" id="rowW" min="0" value="0" required>
+        </div>
+        <div class="field">
+          <label for="rowD">Draws</label>
+          <input type="number" id="rowD" min="0" value="0" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rowL">Losses</label>
+          <input type="number" id="rowL" min="0" value="0" required>
+        </div>
+        <div class="field">
+          <label for="rowPts">Points</label>
+          <input type="number" id="rowPts" min="0" value="0" required>
+        </div>
+      </div>
+      <div class="field-row" id="rowGfGaRow">
+        <div class="field">
+          <label for="rowGf">Goals For</label>
+          <input type="number" id="rowGf" min="0" value="0">
+        </div>
+        <div class="field">
+          <label for="rowGa">Goals Against</label>
+          <input type="number" id="rowGa" min="0" value="0">
+        </div>
+      </div>
+      <div class="field">
+        <label for="rowGd">Goal Difference</label>
+        <input type="number" id="rowGd" placeholder="e.g. 6 or -3" required>
+      </div>
+      <button type="submit" class="btn btn-gold btn-block">Save Row</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== PLAYER VIEW MODAL ===== -->
+<div class="modal-overlay" id="playerModal">
+  <div class="glass modal-box">
+    <div class="modal-close" onclick="closeModal('playerModal')">&times;</div>
+    <div id="playerModalBody"><!-- rendered by JS --></div>
+  </div>
+</div>
+
+<!-- ===== FIXTURE ADD/EDIT MODAL ===== -->
+<div class="modal-overlay" id="fixtureModal">
+  <div class="glass modal-box">
+    <div class="modal-close" onclick="closeModal('fixtureModal')">&times;</div>
+    <h2 style="font-size:1.2rem; margin-bottom:20px;" id="fixtureModalTitle">Add Fixture</h2>
+    <form id="fixtureForm">
+      <input type="hidden" id="fxId">
+      <div class="field-row">
+        <div class="field">
+          <label for="fxDay">Day</label>
+          <input type="text" id="fxDay" placeholder="22" required>
+        </div>
+        <div class="field">
+          <label for="fxMon">Month</label>
+          <input type="text" id="fxMon" placeholder="Aug" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fxTitle">Title</label>
+        <input type="text" id="fxTitle" placeholder="Ten Arce vs Town United" required>
+      </div>
+      <div class="field">
+        <label for="fxInfo">Details</label>
+        <input type="text" id="fxInfo" placeholder="Round 13 · Ten Arce Grounds · 4:00 PM" required>
+      </div>
+      <div class="field">
+        <label for="fxTag">Tag</label>
+        <select id="fxTag">
+          <option value="Fixture">Fixture</option>
+          <option value="Key Match">Key Match</option>
+          <option value="League Event">League Event</option>
+          <option value="Deadline">Deadline</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-gold btn-block">Save Fixture</button>
+    </form>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <a href="index.html" class="footer-brand">
+        <img src="images/logo.jpeg" alt="HPL">
+        <strong>Hapugastalawa Premier League</strong>
+      </a>
+      <nav class="footer-links">
+        <a href="teams.html">Teams</a>
+        <a href="history.html">History</a>
+        <a href="upcoming-events.html">Fixtures</a>
+        <a href="player-registration.html">Register</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">&copy; 2026 Hapugastalawa Premier League. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('dashboardSection').style.display = 'block';
+    showToast('Welcome back, Admin');
+    renderAll();
+  });
+
+  // ---------- RENDER ----------
+  function renderAll(){
+    renderPlayers();
+    renderFixturesTable();
+    renderStandingsSection();
+  }
+
+  function renderPlayers(){
+    const players = HplPlayers.getAll();
+    const tbody = document.getElementById('playersTableBody');
+
+    document.getElementById('statPlayers').textContent = players.length;
+    document.getElementById('statPending').textContent = players.filter(p => p.status === 'Pending').length;
+
+    if (!players.length){
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--white-3); padding:30px 0;">No player registrations yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = players.map(p => `
+      <tr>
+        <td>${p.photo ? `<img src="${p.photo}" class="player-thumb" alt="${p.name}">` : `<span class="player-thumb-placeholder">&#128100;</span>`}</td>
+        <td>${p.name}</td>
+        <td>${p.team || '—'}</td>
+        <td>${p.position || '—'}</td>
+        <td><span class="badge" style="${p.status === 'Approved' ? 'color:var(--green); border-color:var(--green);' : 'color:var(--gold-2); border-color:var(--gold-2);'}">${p.status}</span></td>
+        <td style="text-align:right; white-space:nowrap;">
+          <button class="btn btn-sm btn-ghost" onclick="viewPlayer('${p.id}')">View</button>
+          ${p.status !== 'Approved' ? `<button class="btn btn-sm btn-ghost" onclick="approvePlayer('${p.id}')">Approve</button>` : ''}
+          <button class="btn btn-sm btn-danger" onclick="deletePlayer('${p.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function renderFixturesTable(){
+    const fixtures = HplFixtures.getAll();
+    const tbody = document.getElementById('fixturesTableBody');
+    document.getElementById('statFixtures').textContent = fixtures.length;
+
+    if (!fixtures.length){
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--white-3); padding:30px 0;">No fixtures yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = fixtures.map(fx => `
+      <tr>
+        <td>${fx.day} ${fx.mon}</td>
+        <td>${fx.title}</td>
+        <td>${fx.info}</td>
+        <td><span class="badge" style="${fx.tagStyle || ''}">${fx.tag}</span></td>
+        <td style="text-align:right; white-space:nowrap;">
+          <button class="btn btn-sm btn-ghost" onclick="editFixture('${fx.id}')">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteFixture('${fx.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ---------- PLAYERS ----------
+  function viewPlayer(id){
+    const p = HplPlayers.getAll().find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('playerModalBody').innerHTML = `
+      ${p.photo ? `<img src="${p.photo}" class="modal-photo" alt="${p.name}">` : `<div class="modal-photo-placeholder">&#128100;</div>`}
+      <h2 style="font-size:1.25rem; margin-bottom:2px;">${p.name}</h2>
+      <span class="badge" style="${p.status === 'Approved' ? 'color:var(--green); border-color:var(--green);' : 'color:var(--gold-2); border-color:var(--gold-2);'}">${p.status}</span>
+      <div class="detail-row"><span>Position</span><span>${p.position || '—'}</span></div>
+      <div class="detail-row"><span>Team</span><span>${p.team || '—'}</span></div>
+      <div class="detail-row"><span>Date of Birth</span><span>${p.dob || '—'}</span></div>
+      <div class="detail-row"><span>Phone</span><span>${p.phone || '—'}</span></div>
+      <div class="detail-row"><span>Email</span><span>${p.email || '—'}</span></div>
+      <div class="detail-row"><span>Notes</span><span>${p.notes || '—'}</span></div>
+      <div class="modal-actions">
+        ${p.status !== 'Approved' ? `<button class="btn btn-gold" onclick="approvePlayer('${p.id}'); closeModal('playerModal')">Approve</button>` : ''}
+        <button class="btn btn-danger" onclick="deletePlayer('${p.id}'); closeModal('playerModal')">Delete</button>
+      </div>
+    `;
+    openModal('playerModal');
+  }
+
+  function approvePlayer(id){
+    HplPlayers.update(id, { status: 'Approved' });
+    showToast('Registration approved');
+    renderPlayers();
+  }
+
+  function deletePlayer(id){
+    const p = HplPlayers.getAll().find(x => x.id === id);
+    if (!p) return;
+    if (!confirm(`Delete registration for ${p.name}? This cannot be undone.`)) return;
+    HplPlayers.remove(id);
+    showToast('Registration deleted');
+    renderPlayers();
+  }
+
+  // ---------- FIXTURES ----------
+  function openFixtureModal(){
+    document.getElementById('fixtureModalTitle').textContent = 'Add Fixture';
+    document.getElementById('fixtureForm').reset();
+    document.getElementById('fxId').value = '';
+    openModal('fixtureModal');
+  }
+
+  function editFixture(id){
+    const fx = HplFixtures.getAll().find(x => x.id === id);
+    if (!fx) return;
+    document.getElementById('fixtureModalTitle').textContent = 'Edit Fixture';
+    document.getElementById('fxId').value = fx.id;
+    document.getElementById('fxDay').value = fx.day;
+    document.getElementById('fxMon').value = fx.mon;
+    document.getElementById('fxTitle').value = fx.title.replace(/&middot;/g, '·');
+    document.getElementById('fxInfo').value = fx.info.replace(/&middot;/g, '·');
+    document.getElementById('fxTag').value = fx.tag;
+    openModal('fixtureModal');
+  }
+
+  function deleteFixture(id){
+    const fx = HplFixtures.getAll().find(x => x.id === id);
+    if (!fx) return;
+    if (!confirm(`Delete "${fx.title}"? This cannot be undone.`)) return;
+    HplFixtures.remove(id);
+    showToast('Fixture deleted');
+    renderFixturesTable();
+  }
+
+  document.getElementById('fixtureForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const id = document.getElementById('fxId').value;
+    const tag = document.getElementById('fxTag').value;
+    const tagStyles = {
+      'Fixture': '',
+      'Key Match': 'color:var(--red); border-color:var(--red);',
+      'League Event': 'color:var(--gold-2);',
+      'Deadline': 'color:var(--gold-2);'
+    };
+    const data = {
+      day: document.getElementById('fxDay').value,
+      mon: document.getElementById('fxMon').value,
+      title: document.getElementById('fxTitle').value,
+      info: document.getElementById('fxInfo').value,
+      tag: tag,
+      tagStyle: tagStyles[tag] || ''
+    };
+
+    if (id){
+      HplFixtures.update(id, data);
+      showToast('Fixture updated');
+    } else {
+      HplFixtures.add(data);
+      showToast('Fixture added');
+    }
+    closeModal('fixtureModal');
+    renderFixturesTable();
+  });
+
+  // ---------- STANDINGS ----------
+  let currentSeasonId = null;
+
+  function renderStandingsSection(){
+    const seasons = HplStandings.getSeasons(); // sorted newest first
+    const select = document.getElementById('standingsSeasonSelect');
+
+    if (!seasons.length){
+      select.innerHTML = '<option value="">No seasons yet</option>';
+      document.getElementById('standingsTableBody').innerHTML =
+        '<tr><td colspan="10" style="text-align:center; color:var(--white-3); padding:30px 0;">No season tables yet — click "New Season Table" to create one.</td></tr>';
+      currentSeasonId = null;
+      return;
+    }
+
+    // Keep the currently selected season if it still exists, else default to newest
+    if (!currentSeasonId || !seasons.find(s => s.id === currentSeasonId)){
+      currentSeasonId = seasons[0].id;
+    }
+
+    select.innerHTML = seasons.map(s =>
+      `<option value="${s.id}" ${s.id === currentSeasonId ? 'selected' : ''}>${s.label}</option>`
+    ).join('');
+
+    renderStandingsRows();
+  }
+
+  function onStandingsSeasonChange(){
+    currentSeasonId = document.getElementById('standingsSeasonSelect').value;
+    renderStandingsRows();
+  }
+
+  function renderStandingsRows(){
+    const tbody = document.getElementById('standingsTableBody');
+    const season = HplStandings.getSeason(currentSeasonId);
+    if (!season){
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--white-3); padding:30px 0;">Select a season above.</td></tr>';
+      return;
+    }
+    if (!season.rows.length){
+      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--white-3); padding:30px 0;">No teams added to this table yet.</td></tr>';
+      return;
+    }
+    const zoneLabel = { 'dot-q':'Qualified', 'dot-r':'Relegation', 'dot-n':'—' };
+    const rows = season.rows.slice().sort((a,b) => (a.pos||0) - (b.pos||0));
+    tbody.innerHTML = rows.map(r => {
+      const gd = (r.gd > 0 ? '+' : '') + r.gd;
+      const gdClass = r.gd > 0 ? 'gd-pos' : (r.gd < 0 ? 'gd-neg' : '');
+      return `
+        <tr>
+          <td>${r.pos}</td>
+          <td>${r.team}</td>
+          <td>${r.played}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td>
+          <td class="${gdClass}">${gd}</td>
+          <td class="pts">${r.pts}</td>
+          <td><span class="badge" style="${r.dot === 'dot-r' ? 'color:var(--red); border-color:var(--red);' : (r.dot === 'dot-q' ? 'color:var(--green); border-color:var(--green);' : '')}">${zoneLabel[r.dot] || '—'}</span></td>
+          <td style="text-align:right; white-space:nowrap;">
+            <button class="btn btn-sm btn-ghost" onclick="editRow('${r.id}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteRow('${r.id}')">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // ---- Season modal ----
+  function openSeasonModal(editMode){
+    const seasons = HplStandings.getSeasons();
+    if (editMode && !currentSeasonId){
+      showToast('Select a season first');
+      return;
+    }
+    document.getElementById('seasonForm').reset();
+    if (editMode){
+      const season = HplStandings.getSeason(currentSeasonId);
+      document.getElementById('seasonModalTitle').textContent = 'Edit Season Info';
+      document.getElementById('seasonId').value = season.id;
+      document.getElementById('seasonLabel').value = season.label;
+      document.getElementById('seasonStatusText').value = (season.tableTitle || '').replace(/&middot;/g, '·').replace(new RegExp('^' + season.label + '\\s*·?\\s*'), '');
+      document.getElementById('seasonOrder').value = season.order || '';
+      document.getElementById('seasonShowGfGa').value = season.showGfGa ? 'yes' : 'no';
+    } else {
+      document.getElementById('seasonModalTitle').textContent = 'New Season Table';
+      document.getElementById('seasonId').value = '';
+      const maxOrder = seasons.reduce((m, s) => Math.max(m, s.order || 0), 0);
+      document.getElementById('seasonOrder').value = maxOrder + 1;
+      document.getElementById('seasonShowGfGa').value = 'no';
+    }
+    openModal('seasonModal');
+  }
+
+  document.getElementById('seasonForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const id = document.getElementById('seasonId').value;
+    const label = document.getElementById('seasonLabel').value.trim();
+    const statusText = document.getElementById('seasonStatusText').value.trim();
+    const order = parseInt(document.getElementById('seasonOrder').value, 10) || 0;
+    const showGfGa = document.getElementById('seasonShowGfGa').value === 'yes';
+
+    const data = {
+      label: label,
+      tabLabel: label,
+      tableTitle: `Season ${label} &middot; ${statusText}`,
+      order: order,
+      showGfGa: showGfGa
+    };
+
+    if (id){
+      HplStandings.updateSeason(id, data);
+      showToast('Season updated');
+      currentSeasonId = id;
+    } else {
+      data.rows = [];
+      data.legend = [
+        { dot:'dot-q', text:'Qualification Zone' },
+        { dot:'dot-r', text:'Relegation Zone' }
+      ];
+      const season = HplStandings.addSeason(data);
+      showToast('Season table created');
+      currentSeasonId = season.id;
+    }
+    closeModal('seasonModal');
+    renderStandingsSection();
+  });
+
+  function deleteSeason(){
+    if (!currentSeasonId) return;
+    const season = HplStandings.getSeason(currentSeasonId);
+    if (!season) return;
+    if (!confirm(`Delete the entire "${season.label}" season table? This removes all its rows and cannot be undone.`)) return;
+    HplStandings.removeSeason(currentSeasonId);
+    showToast('Season deleted');
+    currentSeasonId = null;
+    renderStandingsSection();
+  }
+
+  // ---- Row modal ----
+  function populateRowTeamSelect(){
+    const select = document.getElementById('rowTeam');
+    const knownTeams = Object.keys(HPL_CLUB_CRESTS);
+    select.innerHTML = knownTeams.map(t => `<option value="${t}">${t}</option>`).join('')
+      + '<option value="__custom__">Other / type below…</option>';
+  }
+
+  function openRowModal(){
+    if (!currentSeasonId){
+      showToast('Create or select a season first');
+      return;
+    }
+    populateRowTeamSelect();
+    document.getElementById('rowForm').reset();
+    document.getElementById('rowModalTitle').textContent = 'Add Team Row';
+    document.getElementById('rowId').value = '';
+    const season = HplStandings.getSeason(currentSeasonId);
+    document.getElementById('rowGfGaRow').style.display = season.showGfGa ? 'grid' : 'none';
+    const nextPos = (season.rows.reduce((m, r) => Math.max(m, r.pos || 0), 0) || 0) + 1;
+    document.getElementById('rowPos').value = nextPos;
+    openModal('rowModal');
+  }
+
+  function editRow(rowId){
+    const season = HplStandings.getSeason(currentSeasonId);
+    if (!season) return;
+    const row = season.rows.find(r => r.id === rowId);
+    if (!row) return;
+    populateRowTeamSelect();
+    document.getElementById('rowModalTitle').textContent = 'Edit Team Row';
+    document.getElementById('rowId').value = row.id;
+    document.getElementById('rowPos').value = row.pos;
+    const teamSelect = document.getElementById('rowTeam');
+    if ([...teamSelect.options].some(o => o.value === row.team)){
+      teamSelect.value = row.team;
+    } else {
+      const opt = document.createElement('option');
+      opt.value = row.team; opt.textContent = row.team;
+      teamSelect.insertBefore(opt, teamSelect.lastElementChild);
+      teamSelect.value = row.team;
+    }
+    document.getElementById('rowPlayed').value = row.played;
+    document.getElementById('rowZone').value = row.dot || 'dot-n';
+    document.getElementById('rowW').value = row.w;
+    document.getElementById('rowD').value = row.d;
+    document.getElementById('rowL').value = row.l;
+    document.getElementById('rowPts').value = row.pts;
+    document.getElementById('rowGf').value = row.gf ?? 0;
+    document.getElementById('rowGa').value = row.ga ?? 0;
+    document.getElementById('rowGd').value = row.gd;
+    document.getElementById('rowGfGaRow').style.display = season.showGfGa ? 'grid' : 'none';
+    openModal('rowModal');
+  }
+
+  function deleteRow(rowId){
+    if (!currentSeasonId) return;
+    if (!confirm('Delete this team from the table? This cannot be undone.')) return;
+    HplStandings.removeRow(currentSeasonId, rowId);
+    showToast('Row deleted');
+    renderStandingsRows();
+  }
+
+  document.getElementById('rowTeam').addEventListener('change', function(){
+    if (this.value === '__custom__'){
+      const name = prompt('Enter team name:');
+      if (name){
+        const opt = document.createElement('option');
+        opt.value = name; opt.textContent = name;
+        this.insertBefore(opt, this.lastElementChild);
+        this.value = name;
+      } else {
+        this.value = this.options[0].value;
+      }
+    }
+  });
+
+  document.getElementById('rowForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const id = document.getElementById('rowId').value;
+    const data = {
+      pos: parseInt(document.getElementById('rowPos').value, 10),
+      team: document.getElementById('rowTeam').value,
+      played: parseInt(document.getElementById('rowPlayed').value, 10),
+      dot: document.getElementById('rowZone').value,
+      w: parseInt(document.getElementById('rowW').value, 10),
+      d: parseInt(document.getElementById('rowD').value, 10),
+      l: parseInt(document.getElementById('rowL').value, 10),
+      pts: parseInt(document.getElementById('rowPts').value, 10),
+      gf: parseInt(document.getElementById('rowGf').value, 10) || 0,
+      ga: parseInt(document.getElementById('rowGa').value, 10) || 0,
+      gd: parseInt(document.getElementById('rowGd').value, 10)
+    };
+
+    if (id){
+      HplStandings.updateRow(currentSeasonId, id, data);
+      showToast('Row updated');
+    } else {
+      HplStandings.addRow(currentSeasonId, data);
+      showToast('Team added to table');
+    }
+    closeModal('rowModal');
+    renderStandingsRows();
+  });
+
+  // ---------- MODAL HELPERS ----------
+  function openModal(id){ document.getElementById(id).classList.add('show'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('show'); });
+  });
+</script>
+
+</body>
+</html>

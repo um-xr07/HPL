@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>League History — Hapugastalawa Premier League</title>
+<link rel="icon" href="images/logo.jpeg">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="index.html" class="brand">
+      <img src="images/logo.jpeg" alt="HPL Logo">
+      <div class="brand-text"><strong>Hapugastalawa</strong><span>Premier League</span></div>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="teams.html">Teams</a>
+      <a href="history.html" class="active">History</a>
+      <a href="upcoming-events.html">Fixtures</a>
+      <a href="player-registration.html">Register</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="admin.html">Admin</a>
+    </nav>
+    <div class="nav-toggle"><span></span><span></span><span></span></div>
+  </div>
+</header>
+
+<section class="hero" style="padding:90px 0 40px;">
+  <div class="container">
+    <span class="eyebrow">Archive</span>
+    <h1 style="font-size:clamp(2rem,5vw,3.4rem);">League <span class="gold-text">History</span></h1>
+    <p class="lede">Three tables, three eras. Every final and live standing since the league's first ball was kicked in 2022.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:10px;">
+  <div class="container">
+
+    <div class="season-tabs glass" data-group="history" id="historyTabs" style="width:fit-content; margin-bottom:36px;">
+      <!-- rendered by js -->
+    </div>
+
+    <div id="historyPanels">
+      <!-- rendered by js -->
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <a href="index.html" class="footer-brand">
+        <img src="images/logo.jpeg" alt="HPL">
+        <strong>Hapugastalawa Premier League</strong>
+      </a>
+      <nav class="footer-links">
+        <a href="teams.html">Teams</a>
+        <a href="history.html">History</a>
+        <a href="upcoming-events.html">Fixtures</a>
+        <a href="player-registration.html">Register</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">&copy; 2026 Hapugastalawa Premier League. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  function renderHistoryPage(){
+    const seasons = HplStandings.getSeasons(); // already sorted newest first
+    const tabsWrap = document.getElementById('historyTabs');
+    const panelsWrap = document.getElementById('historyPanels');
+
+    if (!seasons.length){
+      tabsWrap.innerHTML = '';
+      panelsWrap.innerHTML = '<p style="color:var(--white-3); padding:30px; text-align:center;">No seasons have been added yet.</p>';
+      return;
+    }
+
+    tabsWrap.innerHTML = seasons.map((s, i) =>
+      `<button class="${i === 0 ? 'active' : ''}" data-season="${s.id}">${s.tabLabel || s.label}</button>`
+    ).join('');
+
+    panelsWrap.innerHTML = seasons.map((s, i) => `
+      <div class="season-panel ${i === 0 ? 'active' : ''}" data-group="history" data-season="${s.id}">
+        <div class="glass table-card reveal">
+          <div class="table-head">
+            <img src="images/logo.jpeg" alt="">
+            <div>
+              <div class="season">${s.tableTitle || s.label}</div>
+              <h3>Points Table</h3>
+            </div>
+          </div>
+          ${hplRenderStandingsTable(s)}
+        </div>
+      </div>
+    `).join('');
+
+    // Wire up tab clicks (mirrors the generic handler in main.js, but that only
+    // runs once on DOMContentLoaded — this content is rendered after that fires)
+    tabsWrap.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabsWrap.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        panelsWrap.querySelectorAll('.season-panel').forEach(p => p.classList.remove('active'));
+        const target = panelsWrap.querySelector(`.season-panel[data-season="${btn.dataset.season}"]`);
+        if (target) target.classList.add('active');
+      });
+    });
+  }
+
+  renderHistoryPage();
+</script>
+</body>
+</html>
